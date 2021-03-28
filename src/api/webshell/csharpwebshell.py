@@ -11,9 +11,6 @@ class CSharpWebshell(Webshell):
 
     def __init__(self):
         super().__init__()
-        self.options.add_option('exec_type', 
-            f"Tell webshell which way to execute a command or program.Specify the type `shell` (execute a command in the shell and exit), `process` (run the program in the specified path and exit)", False,
-            check=r'shell|process', default='shell')
         self.options.add_option('extra_assemblys', 
             "Specifies the additional assembly path that the C # compiler will introduce.(Add `+` in front of value to add a path, and `-` delete a path, type `set extra_assemblys []` to empty)\nNote: c# may cache the assembly, when encountering a conflict, you need to manually cancel the additional assembly", 
             False, [], type=self.__check)
@@ -47,20 +44,6 @@ class CSharpWebshell(Webshell):
                     continue
                 old.append(v)
         return old
-
-    def exec(self, cmdline: str)->bytes:
-        '''在服务器上执行命令并获取结果
-        '''
-        p = CSharpPayload('csharp/exec/exec.cs', pwd=self.session.state['pwd'], cmd=cmdline, shell=self.options.exec_type)
-        ret = self.eval(p)
-        if not ret.is_success():
-            return None
-        ret = json.loads(ret.data)
-        if ret['code'] == 1:
-            return base64.b64decode(ret['result'].encode())
-
-        logger.error(base64.b64decode(ret['result'].encode()).decode(self.options.encoding, 'ignore'))
-        return None
 
     def hook_start(self, session: WebshellSession):
         super().hook_start(session)

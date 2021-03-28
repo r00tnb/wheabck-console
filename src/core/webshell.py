@@ -4,10 +4,13 @@ from src.core.base import WebshellBase, Payload
 import re
 import threading
 from functools import wraps
+import abc
+from src.logger import logger
+from src.ui.pretty import colour
 
 class Options:
     def __init__(self):
-        self.__options = [] # 形如：[['name', 'value', True, 'description'], ...[...]]
+        self.__options = [] # 形如：[['name', 'value', True, 'description', ...], ...[...]]
         self.__temp_options = [] # 形如 [[name, value, threadID], ...] 用于存储使用一次即失效的临时选项
     
     def add_option(self, name: str, description: str, required=False, default=None, check=None, type=str):
@@ -109,6 +112,15 @@ class Options:
                 return tmp[1]
         return o[1]
 
+class CommandExecutor(metaclass=abc.ABCMeta):
+
+    @abc.abstractmethod
+    def exec_command_on_server(self, cmd:str)->str:
+        '''执行远程系统命令
+        '''
+        pass
+
+
 class Webshell(WebshellBase):
     '''A webshell base class
 
@@ -124,8 +136,8 @@ class Webshell(WebshellBase):
             'HTTP request timeout in seconds.If set to `0`, it will wait indefinitely for the request to complete', default=30.0, check=r"\d+(\.\d+)?", type=float)
         self.options.add_option('verbose', "Display detailed error information of the webshell client.\n0.Hidden all info.\n1.Only show error info.\n2.Show all error,warning info.", 
             check=r"0|1|2", default=2, type=int)
-        self.options.add_option('command_wrapper', """The option value will wrap the remote system command and execute it as the command of the session. For example, set to the following values ​​to execute commands through the mysql database, where ${cmd} is used as the placeholder identifier for the command `mysql "select sys_eval('${cmd}')"`. Note: This option will completely replace ${cmd} with the actual command, quotation marks may conflict""", 
-            type=str, default='')
+        self.options.add_option('command_executor', """You can specify a plug-in to execute system commands on the server (default is `exec`). The plug-in must inherit the commandexecutor class and implement exec_command method.""", 
+            type=str, default='exec')
         self.help = self.__doc__ if self.__doc__ is not None else ''
         self.session = None
         self.type = None # 指定webshell的类型，如：php/sample_one_word, 这个值将在生成实例时一般由`use`命令填充
@@ -150,6 +162,20 @@ class Webshell(WebshellBase):
             self.options.destroy_all_temp_options()
             return ret
         return wrapper
+
+    def exec_command(self, cmd)->str:
+        '''在服务器上执行系统命令，所有插件应该使用该方法执行系统命令
+        '''
+        name = self.options.command_executor
+        executor = self.session.command_map.get(name)
+        if executor is None:
+            logger.error(f"No command named `{name}`.")
+            return None
+        if not isinstance(executor, CommandExecutor):
+            logger.error(f"Explot `{name}` if not a CommandExecutor!")
+            return None
+        
+        return executor.exec_command_on_server(cmd)
     
     def connect(self)-> bool:
         '''connect target and return True, or False if connect failed. 
@@ -158,11 +184,6 @@ class Webshell(WebshellBase):
 
     def eval(self, payload: Payload):
         '''执行payload并获取返回结果, 一般payload为代码, 若返回None则说明执行失败'''
-        pass
-
-    def exec(self, cmdline: str)->bytes:
-        '''在服务器上执行命令并获取结果
-        '''
         pass
 
     def generate(self)-> bytes:
@@ -177,7 +198,15 @@ class Webshell(WebshellBase):
     def hook_loaded(self):
         '''当所属session加载完毕时调用
         '''
-        pass
+        # 修改command_executor的checkrule
+        ok = []
+        for n, e in self.session.command_map.items():
+            if isinstance(e, CommandExecutor):
+                ok.append(n)
+        o = self.options._get_option("command_executor")
+        if o:
+            o[3] = rf'{"|".join(ok)}'
+        
 
     def hook_destroy(self):
         '''当所属session被销毁时调用
