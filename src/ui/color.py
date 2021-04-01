@@ -149,6 +149,7 @@ class Colour:
             返回修饰后的字符串
 
         '''
+        string = str(string)
         if not self.enable:
             return string
 

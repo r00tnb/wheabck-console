@@ -1,6 +1,6 @@
 
 
-from src.core.base import WebshellBase, Payload
+from src.core.base import WebshellBase, Payload, Cmdline
 import re
 import threading
 from functools import wraps
@@ -172,7 +172,7 @@ class Webshell(WebshellBase):
             logger.error(f"No command named `{name}`.")
             return None
         if not isinstance(executor, CommandExecutor):
-            logger.error(f"Explot `{name}` if not a CommandExecutor!")
+            logger.error(f"Explot `{name}` is not a CommandExecutor!")
             return None
         
         return executor.exec_command_on_server(cmd)
@@ -183,7 +183,7 @@ class Webshell(WebshellBase):
         pass
 
     def eval(self, payload: Payload):
-        '''执行payload并获取返回结果, 一般payload为代码, 若返回None则说明执行失败'''
+        '''执行payload并获取返回结果, 一般payload为代码, 始终返回EvalResult对象'''
         pass
 
     def generate(self)-> bytes:

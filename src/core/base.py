@@ -39,7 +39,8 @@ def call_path(floor=1)-> str:
     return os.path.abspath(stack[-floor-1].filename)
 
 class Cmdline:
-
+    '''支持的引号' " `
+    '''
     def __init__(self, line:typing.Union[str, tuple, list]):
         if isinstance(line, str):
             self.__cmdline = line
@@ -86,38 +87,51 @@ class Cmdline:
     def __parsecmd(self, line: str)-> list:
         result = []
         # 解析命令字符串，转为命令列表的形式，如："ls -l a" 转为["ls", "-l", "a"]
-        quote = None
+        quote = None # 当前期待的引号
         quotestr = '"`\''
-        start, end = 0, 0
-        space = ' \t'
-        line = line.strip(' \r\n')+' '
+        end = 0
+        space = ' \t\r\n'
+        line = line.strip(space) # 命令行的开始与结束都不会有空白符
         length = len(line)
+        for q in quotestr:
+            if line.startswith(q):
+                raise ValueError("Cmdline analyse error!")
+        
+        cur = ''
+        quote_str= ''
         while end < length:
-            if line[end] in space:
-                result.append(line[start:end])
-                while end < length and line[end] in space:
-                    end+=1
-                start = end
-                if end < length and line[end] in quotestr:
+            if line[end] in quotestr:
+                if quote == line[end] and line[end-1] != '\\':
+                    cur += quote_str.replace(f"\\{quote}", quote)
+                    quote_str = ''
+                    end += 1
+                    quote = None
+                elif quote is None:
                     quote = line[end]
-                    start = end
-                    end+=1
-                    while line[end] != quote or (line[end] == quote and line[end-1]=='\\'):
-                        if end == length-1:
-                            raise ValueError("Cmdline analyse error!")
-                        end+=1
-                    tmp = line[start+1:end]
-                    tmp = tmp.replace(f'\\{quote}', quote)
-                    end+=1
-                    if line[end] not in space:
-                        continue
-                    else:
-                        result.append(tmp)
-                    while end < length and line[end] in space:
-                        end+=1
-                    start = end
-            else:
-                end+=1
+                    end += 1
+                else:
+                    quote_str += line[end]
+                    end += 1
+                continue
+
+            if quote is not None:
+                quote_str += line[end]
+                end += 1
+                continue
+
+            if line[end] not in space:
+                cur += line[end]
+                end += 1
+                continue
+
+            result.append(cur)
+            cur = ''
+            while line[end] in space:
+                end += 1
+        if quote is not None:
+            raise ValueError("Cmdline analyse error!") 
+        if cur:
+            result.append(cur)
         return result
 
 class Plugin:
