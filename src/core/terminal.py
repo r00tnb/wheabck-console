@@ -21,6 +21,7 @@ class Terminal(TerminalBase):
             self._readline.set_completer_delims('')
             self._readline.parse_and_bind('tab: complete')
             self._readline.clear_history()
+            self._readline.read_history_file(config.history_path)
             if hasattr(self._readline, 'set_auto_history'):
                 self._readline.set_auto_history(False)
         except ModuleNotFoundError:
@@ -49,4 +50,8 @@ class Terminal(TerminalBase):
 
     def complete(self, text: str, state: int):
         return None
+
+    def postloop(self):
+        self._readline.set_history_length(1000)
+        self._readline.write_history_file(config.history_path)
             

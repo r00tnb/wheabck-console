@@ -62,6 +62,9 @@ module_path = os.path.join(root_path, 'modules')
 # api 搜索路径
 sys.path.insert(0, root_path)
 
+# 历史命令路径
+history_path = os.path.join(program_path, '.history')
+
 # 日志等级
 logger_level = logging.INFO
 

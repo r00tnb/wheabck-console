@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 .env
+.history
 webshell_connections.xml
 /.vscode/
 src/modules/webshell/php/trans_by_encrypt_with_rsa_aes/keys/

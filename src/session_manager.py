@@ -99,6 +99,7 @@ class SessionManager(Terminal):
             logger.debug(f'All sessions `{str(ids)}` have been killed!')
         self.manager._hook_destroy()
         logger.debug("All the exploit destroy hooks on manager session are executed.")
+        super().postloop()
 
     @property
     def session(self)->Session:
