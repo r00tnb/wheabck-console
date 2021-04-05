@@ -99,6 +99,7 @@ class Cmdline:
         
         cur = ''
         quote_str= ''
+        is_quote_over = False # 判断最后是否是从引号中退出
         while end < length:
             if line[end] in quotestr:
                 if quote == line[end] and line[end-1] != '\\':
@@ -112,6 +113,7 @@ class Cmdline:
                 else:
                     quote_str += line[end]
                     end += 1
+                is_quote_over = True
                 continue
 
             if quote is not None:
@@ -122,15 +124,17 @@ class Cmdline:
             if line[end] not in space:
                 cur += line[end]
                 end += 1
+                is_quote_over = False
                 continue
 
             result.append(cur)
             cur = ''
             while line[end] in space:
                 end += 1
+            is_quote_over = False
         if quote is not None:
             raise ValueError("Cmdline analyse error!") 
-        if cur:
+        if cur or is_quote_over:
             result.append(cur)
         return result
 

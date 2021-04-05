@@ -5,6 +5,7 @@ import src.config as config
 from src.exception import CommandNotFound
 from src.logger import logger
 import importlib
+import os
 
 class Terminal(TerminalBase):
     '''实现自动补全，历史命令等功能
@@ -21,7 +22,8 @@ class Terminal(TerminalBase):
             self._readline.set_completer_delims('')
             self._readline.parse_and_bind('tab: complete')
             self._readline.clear_history()
-            self._readline.read_history_file(config.history_path)
+            if os.path.exists(config.history_path):
+                self._readline.read_history_file(config.history_path)
             if hasattr(self._readline, 'set_auto_history'):
                 self._readline.set_auto_history(False)
         except ModuleNotFoundError:

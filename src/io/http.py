@@ -1,7 +1,7 @@
 from urllib import request, parse
 from http.client import HTTPResponse
 import ssl
-ssl._create_default_https_context = ssl._create_unverified_context() # 全局忽略https证书校验
+ssl._create_default_https_context = ssl._create_unverified_context # 全局忽略https证书校验
 
 class HttpException(Exception):
 
