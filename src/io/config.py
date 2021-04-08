@@ -34,13 +34,15 @@ class IOConfig:
         return self.__stderr
 
     def register_top_builtins(self, built):
+        '''程序开始时调用，替换全局函数
+        '''
         if self.__top_builtins:
             return
         try:
             self.__top_builtins = built
             self.old_print = built.print
             del built.print
-            built.print = self.new_print
+            built.print = self.new_print # 替换print函数
         except BaseException:
             print("Register top builtins failed!")
 

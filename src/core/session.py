@@ -153,6 +153,14 @@ class WebshellSession(Session):
     def server_info(self)-> dict:
         return self.state.get('Server Info')
 
+    def isUnix(self)-> bool:
+        return not self.isWindows()
+
+    def isWindows(self)-> bool:
+        if self.server_info['os_type'].lower().startswith('win'):
+            return True
+        return False
+
 
 class MainSession(Session):
     '''

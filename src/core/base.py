@@ -22,7 +22,7 @@ def load_module(name: str, path: str):
     try:
         sepc.loader.exec_module(module)
     except BaseException as e:
-        logger.debug(f'A {e.__class__.__name__} occured!', True)
+        logger.debug(f'A {e.__class__.__name__} occured when load module `{path}`!', True)
         logger.warning(f'Module `{name}` maybe have some error. Load failed!') 
         module = None
     if old:

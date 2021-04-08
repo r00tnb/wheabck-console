@@ -16,11 +16,11 @@ from xml.sax.saxutils import escape, unescape
 locker = threading.Lock() # 用于全局的锁
 
 def input(prompt='', slow=False)-> str:
-    print(prompt, end='', flush=True)
     ret = ''
     if not slow:
-        ret = ioconfig.new_input()
+        ret = ioconfig.new_input(prompt)
     else:
+        print(prompt, end='', flush=True)
         while True:
             ch = ioconfig.stdin.getch(True)
             ret += chr(ch)

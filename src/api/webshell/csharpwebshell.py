@@ -66,5 +66,5 @@ class CSharpWebshell(Webshell):
         session.server_info['domain'] = info.get('domain')
         session.server_info['group'] = info.get('group')
 
-        if 'win' not in info['os_type'].lower():
+        if not session.isWindows():
             logger.warning("The target system is not windows. Some commands may fail.")
