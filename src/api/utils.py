@@ -13,9 +13,10 @@ import threading
 from xml.sax.saxutils import escape, unescape
 
 
-locker = threading.Lock() # 用于全局的锁
+locker = threading.Lock()  # 用于全局的锁
 
-def input(prompt='', slow=False)-> str:
+
+def input(prompt='', slow=False) -> str:
     ret = ''
     if not slow:
         ret = ioconfig.new_input(prompt)
@@ -23,12 +24,12 @@ def input(prompt='', slow=False)-> str:
         print(prompt, end='', flush=True)
         while True:
             ch = ioconfig.stdin.getch(True)
-            ret += chr(ch)
-            if chr(ch) == '\n':
+            ret += ch.decode()
+            if ch == b'\n':
                 break
     return ret
 
-def pathsplit(path: str)-> tuple:
+def pathsplit(path: str) -> tuple:
     '''无论文件路径分隔符是哪个，把path分为（目录路径， 文件名）的元组返回
     '''
     i = path.rfind('/')
@@ -39,22 +40,25 @@ def pathsplit(path: str)-> tuple:
 
     return path[:r+1], path[r+1:]
 
-def randomstr(length:int, words=string.ascii_letters+string.digits)->str:
+
+def randomstr(length: int, words=string.ascii_letters+string.digits) -> str:
     '''生成指定长度的字符串
     '''
     length = abs(length)
     length = 1 if length == 0 else length
     return ''.join(random.sample(words, length))
 
-def templete_0(code: str, **kw)-> str:
-        '''替换代码中的占位符${}，并返回替换后的结果
-        '''
-        for k, v in kw.items():
-            if re.match(r'^\w+$', k):
-                code = re.sub(r'\$\{\s*'+k+r'\s*\}', str(v), code) # 将替换${k}为指定的值
-        return code
 
-def correct_cmd_str(line: str, cmd: str)-> str:
+def templete_0(code: str, **kw) -> str:
+    '''替换代码中的占位符${}，并返回替换后的结果
+    '''
+    for k, v in kw.items():
+        if re.match(r'^\w+$', k):
+            code = re.sub(r'\$\{\s*'+k+r'\s*\}', str(v), code)  # 将替换${k}为指定的值
+    return code
+
+
+def correct_cmd_str(line: str, cmd: str) -> str:
     '''构造合法、正确的命令字符串，其中cmd表示插入的命令，line表示完整的命令行字符串，quote表示使用到的引号。最终，
     函数会对cmd进行正确的引号转义，使得整个命令行字符串合法。注：传入的cmd中最外层的引号不能有反斜杠
     '''
@@ -67,7 +71,7 @@ def correct_cmd_str(line: str, cmd: str)-> str:
     if tmp_1:
         tmp_1 = tmp_1[-1]
         tmp = tmp[tmp_1.end():]
-    
+
     quote = "'\""
     for q in quote:
         a = re.findall(rf'\\*{q}', tmp)
@@ -76,23 +80,26 @@ def correct_cmd_str(line: str, cmd: str)-> str:
             a = max(a)
             cmd = cmd.replace(q, "\\"*(a+1)+q)
     return line[:start]+cmd+line[end:]
-    
 
 
 def sleep(secs):
     return time.sleep((secs))
 
-def kill_thread(threadid: int)-> bool:
+
+def kill_thread(threadid: int) -> bool:
     '''杀死指定线程
     '''
     tid = ctypes.c_long(threadid)
-    res = ctypes.pythonapi.PyThreadState_SetAsyncExc(tid, ctypes.py_object(SystemExit))
+    res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
+        tid, ctypes.py_object(SystemExit))
     if res != 1:
         return False
     return True
 
-def xml_escape(data: str)-> str:
-    return escape(data, {'\\':'&#x5c;'})
 
-def xml_unescape(data: str)-> str:
-    return unescape(data, {'&#x5c;':'\\'})
+def xml_escape(data: str) -> str:
+    return escape(data, {'\\': '&#x5c;'})
+
+
+def xml_unescape(data: str) -> str:
+    return unescape(data, {'&#x5c;': '\\'})
