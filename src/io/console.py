@@ -11,16 +11,16 @@ class ConsoleInput(MyIO):
     def __init__(self):
         super().__init__(sys.stdin.buffer)
 
-    def readbuf(self, bufsize: int, timeout=1, echo=False)-> str:
+    def read_ex(self, length: int, timeout=1, echo=False)-> str:
         '''从终端获取一段字符串
 
         参数:
-            bufsize： 指定缓存区大小（单位字节）
+            length: 指定最大读取的字节数
             timeout： 指定超时时间（单位毫秒）
             echo： 指定输入是否还打印到终端
 
         返回数据：
-            返回字符串对象
+            返回读取到的字符串对象
         '''
         ch = ''
         if config.platform.startswith('linux'):
