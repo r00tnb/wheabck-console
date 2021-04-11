@@ -33,16 +33,17 @@ class PHPWebshell(Webshell):
             return
         info = json.loads(ret.data)
         for k, v in info.items():
-            info[k] = base64.b64decode(v.encode()).decode(self.options.encoding, 'ignore')
+            if isinstance(v, str):
+                info[k] = base64.b64decode(v.encode()).decode(self.options.encoding, 'ignore')
         session.state['name'] = info['host']
         session.state['pwd'] = info.get('pwd').strip()
-        session.state['lang'] = self.PHP
         session.state['description'] = self.help.lstrip('\r\n ').split('\n')[0]
-        session.server_info['user'] = info.get('user').strip()
-        session.server_info['webshell_root'] = info.get('pwd').strip()
-        session.server_info['support_lang'] = (self.PHP,)
-        session.server_info['os_type'] = info.get('os_type').strip()
-        session.server_info['tmpdir'] = info.get('tmpdir').strip()
-        session.server_info['sep'] = info.get('sep').strip()
-        session.server_info['domain'] = info.get('domain')
-        session.server_info['group'] = info.get('group')
+        session.server_info.lang = self.PHP
+        session.server_info.user = info.get('user').strip()
+        session.server_info.webshell_root = info.get('pwd').strip()
+        session.server_info.os_type = info.get('os_type').strip()
+        session.server_info.tmpdir = info.get('tmpdir').strip()
+        session.server_info.sep = info.get('sep').strip()
+        session.server_info.domain = info.get('domain')
+        session.server_info.group = info.get('group')
+        session.server_info.os_bits = info.get('os_bits')

@@ -55,16 +55,16 @@ class CSharpWebshell(Webshell):
         info = json.loads(ret.data)
         session.state['name'] = info['host']
         session.state['pwd'] = info.get('pwd').strip()
-        session.state['lang'] = self.ASP_NET_CS
         session.state['description'] = self.help.lstrip('\r\n ').split('\n')[0]
-        session.server_info['user'] = info.get('user').strip()
-        session.server_info['webshell_root'] = info.get('pwd').strip()
-        session.server_info['support_lang'] = (self.ASP_NET_CS,)
-        session.server_info['os_type'] = info.get('os_type').strip()
-        session.server_info['tmpdir'] = info.get('tmpdir').strip()
-        session.server_info['sep'] = info.get('sep').strip()
-        session.server_info['domain'] = info.get('domain')
-        session.server_info['group'] = info.get('group')
+        session.server_info.lang = self.ASP_NET_CS
+        session.server_info.user = info.get('user').strip()
+        session.server_info.webshell_root = info.get('pwd').strip()
+        session.server_info.os_type = info.get('os_type').strip()
+        session.server_info.tmpdir = info.get('tmpdir').strip()
+        session.server_info.sep = info.get('sep').strip()
+        session.server_info.domain = info.get('domain')
+        session.server_info.group = info.get('group')
+        session.server_info.os_bits = info.get('os_bits')
 
-        if not session.isWindows():
+        if not session.server_info.isWindows():
             logger.warning("The target system is not windows. Some commands may fail.")

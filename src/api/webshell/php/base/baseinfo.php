@@ -7,7 +7,8 @@ $info = array(
     'domain'=>'',
     'os_type'=>PHP_OS, 
     'tmpdir'=>sys_get_temp_dir(),
-    'sep'=>DIRECTORY_SEPARATOR
+    'sep'=>DIRECTORY_SEPARATOR,
+    'os_bits'=>32
 );
 if(strpos(strtoupper(PHP_OS), "WIN")===false){
     $tmp = tempnam($info['tmpdir'], "");
@@ -20,7 +21,15 @@ if(strpos(strtoupper(PHP_OS), "WIN")===false){
     $info['group'] = getenv('USERNAME');
 }
 
+$int = intval("9223372036854775807");
+if ($int == 9223372036854775807) {
+    $info['os_bits'] = 64;
+}
+elseif ($int == 2147483647) {
+    $info['os_bits'] = 32;
+}
 foreach($info as $k=>$v){
-    $info[$k] = base64_encode($v);
+    if(is_string($v))
+        $info[$k] = base64_encode($v);
 }
 echo json_encode($info);

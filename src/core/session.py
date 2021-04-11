@@ -1,4 +1,4 @@
-from src.core.base import SessionBase, Cmdline, Command, load_module
+from src.core.base import SessionBase, Cmdline, Command, load_module, ServerInfo
 from src.ui.pretty import tablor, colour
 from src.core.webshell import Webshell
 from src.logger import logger
@@ -131,35 +131,21 @@ class WebshellSession(Session):
         # 所有状态信息应该在webshell建立连接后进行初始化
         self.state['type'] = webshell.type
         self.state['description'] = ''
-        self.state['pwd'] = None
+        self.state['pwd'] = None # 当前目录
         self.state['name'] = None
-        self.state['lang'] = None # 表示当前webshell使用的语言，如：php等
-        self.state['Server Info'] = {
-            'user':None, # 当前用户名
-            'group':None, # 当前用户所在组名
-            'domain':None, # 当前用户的域名
-            'webshell_root':None, # webshell所在的目录
-            'support_lang': (), # 表示当前服务器支持的动态语言类型，如：php, aspx等
-            'os_type': None, # 服务器系统类型，如：windows,linux
-            'tmpdir': None, # 服务器的临时文件目录
-            'sep': None, # 服务器系统使用的文件路径分隔符
-        }
+        self.state['Server Info'] = ServerInfo() # 存储服务端静态信息
 
     @property
     def id(self)-> int:
         return self['session_id']
 
     @property
-    def server_info(self)-> dict:
+    def server_info(self)-> ServerInfo:
         return self.state.get('Server Info')
 
-    def isUnix(self)-> bool:
-        return not self.isWindows()
-
-    def isWindows(self)-> bool:
-        if self.server_info['os_type'].lower().startswith('win'):
-            return True
-        return False
+    @property
+    def pwd(self)->str:
+        return self.state.get('pwd')
 
 
 class MainSession(Session):

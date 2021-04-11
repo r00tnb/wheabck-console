@@ -312,3 +312,28 @@ class Payload:
     def del_var(self, name: str):
         if name in self._global:
             self._global.pop(name)
+
+class ServerInfo:
+    '''存储服务端信息, 主要是静态信息
+    '''
+
+    def __init__(self):
+        self.user = '' # 当前用户名
+        self.group = '' # 当前用户所在组名
+        self.domain = '' # 当前用户的域名
+        self.webshell_root = '' # webshell所在的目录
+        self.lang = '' # webshell 语言 类似 WebshellBase.PHP
+        self.os_type = '' # 服务器系统类型，如：windows,linux
+        self.tmpdir = '' # 服务器的临时文件目录
+        self.sep = '' # 服务器系统使用的文件路径分隔符
+        self.os_bits = 32 # 操作系统位数
+    
+    def isUnix(self)-> bool:
+        return not self.isWindows()
+
+    def isWindows(self)-> bool:
+        if self.lang == WebshellBase.PHP and self.os_type.lower().startswith('win'):
+            return True
+        if self.lang == WebshellBase.ASP_NET_CS:
+            return True
+        return False
