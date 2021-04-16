@@ -9,7 +9,7 @@ class PHPPayload(Payload):
         result = self._code.decode()
 
         # 删除所有注释(无法处理字符串， 待改进)
-        result = re.sub(r'//.*|/\*[\s\S]*\*/', '', result)
+        # result = re.sub(r'//.*|/\*[\s\S]*\*/', '', result)
 
         # 删除标签和开始结尾的空白符
         result = re.sub(r'^\s*<\?php\s*|\s*\?>\s*$', '', result) 

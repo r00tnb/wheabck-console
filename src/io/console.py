@@ -12,10 +12,10 @@ class ConsoleInput(MyIO):
         super().__init__(sys.stdin.buffer)
 
     def getch(self, echo=False)->int:
-        return ord(self.getbytes(echo, 1))
+        return ord(self.getbytes(echo, False))
 
-    def getbytes(self, echo=False, length:int=1)-> bytes:
-        '''获取一次按键产生的字节，返回它的字节对象，echo指定是否回显输入，length指定一次最多读取的字节数
+    def getbytes(self, echo=False, read_ctrl_seq=True)-> bytes:
+        '''获取一次按键产生的字节，返回它的字节对象，echo指定是否回显输入，如果read_ctrl_seq为true则当键入控制字符时会读取完整控制序列，否则每次只读一个字节
         '''
         ch = b''
         if config.platform.startswith('linux'):
@@ -38,17 +38,19 @@ class ConsoleInput(MyIO):
             # 使设置生效
             termios.tcsetattr(fd, termios.TCSANOW, new_ttyinfo)
             # 从终端读取
-            ch = os.read(fd, length)
+            ch = os.read(fd, 20 if read_ctrl_seq else 1)
 
             # 还原终端设置
             termios.tcsetattr(fd, termios.TCSANOW, old_ttyinfo)
         else:
-            # 未完善
+            # Windows终端
             msvcrt = importlib.import_module('msvcrt')
+            func = msvcrt.getch
             if echo:
-                ch = msvcrt.getche()
-            else:
-                ch = msvcrt.getch()
+                func = msvcrt.getche
+            ch = func()
+            if ch in (b'\x00', b'\xe0') and read_ctrl_seq:
+                ch += func()
 
         return ch
 

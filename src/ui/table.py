@@ -238,9 +238,12 @@ class Tablor:
             result += indent + \
                 self.__draw_line(table[0], width_list, aligning_list,
                                  '|' if border else gap)+'\n'
+
+            # 画头部和数据的分割线
+            tmp_border_line = ['-'*len(t) for t in table[0]]
             result += indent + \
-                self.__draw_line(border_line, width_list, aligning_list, 
-                                 '+' if border else gap, padding='-')+'\n'
+                self.__draw_line(tmp_border_line, width_list, aligning_list, 
+                                 '+' if border else gap, padding=' ')+'\n'
             table = table[1:]
 
         i = 1

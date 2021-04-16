@@ -29,13 +29,20 @@ def support_shell()-> bool:
     return False
 
 def current_shell()->str:
+    '''获取当前终端类型
+    '''
+    types = ['sh', 'bash', 'ash', 'zsh', 'dash', 'powershell', 'cmd', 'other']
     if platform.lower().startswith('win'):
         if os.environ.get('PROMPT') and os.environ.get('COLUMNS') is None:
             return 'cmd'
         else:
             return 'powershell'
     else:
-        return os.path.split(os.environ.get('SHELL'))[1]
+        sh = os.path.split(os.environ.get('SHELL'))[1].lower()
+        if sh in types:
+            return sh
+        else:
+            return 'other'
 
 #=========================
 # 程序相关
@@ -73,7 +80,7 @@ webshell_save_path = os.path.join(program_path, 'webshell_connections.xml')
 
 # os information
 platform = sys.platform
-shell = current_shell() # 目前支持bash, sh, powershell
+shell = current_shell() 
 
 # 默认编辑器
 editor = 'notepad' if 'win' in platform else 'vim'
