@@ -8,8 +8,8 @@ class PHPPayload(Payload):
     def code(self)-> bytes:
         result = self._code.decode()
 
-        # 删除所有注释(无法处理字符串， 待改进)
-        # result = re.sub(r'//.*|/\*[\s\S]*\*/', '', result)
+        # 删除所有注释
+        result = self.del_note(result)
 
         # 删除标签和开始结尾的空白符
         result = re.sub(r'^\s*<\?php\s*|\s*\?>\s*$', '', result) 
@@ -18,6 +18,46 @@ class PHPPayload(Payload):
             result = f"${k} = {self.python_to_php(v)};\n" + result
 
         return result.encode()
+    
+    def del_note(self, code:str)->str:
+        '''删除php注释
+        '''
+        quotes = "'\"`"
+        length = len(code)
+        end = 0
+        result = ''
+        quote = None
+        note1 = '//'
+        note2 = '/*'
+        while end<length:
+            if code[end] in quotes:
+                if quote is None:
+                    quote = code[end]
+                elif quote == code[end]:
+                    quote = None
+            elif quote is None and code[end] == '/' and end<length-1:
+                end += 1
+                tmp = code[end]
+                if tmp in '/*':
+                    end += 1
+                    while end < length:
+                        if code[end] == '\n' and tmp == '/': # 单行注释
+                            end += 1
+                            break
+                        elif code[end] == '*' and tmp == '*' and end < length-1: # 多行注释
+                            end += 1
+                            if code[end] == '/':
+                                end += 1
+                                break
+                        end += 1
+                else:
+                    result += '/'+tmp
+                    end += 1
+                continue
+            result += code[end]
+            end += 1
+        return result
+
     
     def python_to_php(self, var):
         '''将python变量映射到PHP变量

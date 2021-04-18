@@ -50,7 +50,7 @@ class webshell(PHPWebshell):
         elif password_type == 'GET':
             query[self.options.password] = trans_payload
         elif password_type == 'HEADER':
-            trans_payload = trans_payload.replace('\r\n', '').replace('\n', '') # 头部传输时消除换行
+            trans_payload = trans_payload.replace('\r', '').replace('\n', '') # 头部传输时消除换行
             headers.update({self.options.password:trans_payload})
         
         result = EvalResult()
