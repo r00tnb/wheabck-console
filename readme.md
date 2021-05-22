@@ -3,10 +3,10 @@
     
 ## Usage
 ### Start
-    ``git clone https://github.com/r00tnb/wheabck-console.git``
-    ``cd wheabck-console``
-    ``python3 ./wheabck.py``
-> Example
+    `git clone https://github.com/r00tnb/wheabck-console.git`
+    `cd wheabck-console`
+    `python3 ./wheabck.py`
+### Example
 使用use命令来设置当前需要使用的webshell连接客户端
 ``use php/simple_on_word # 使用php 一句话木马连接客户端``
         
